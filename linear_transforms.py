@@ -48,14 +48,34 @@ def affine_transform(target, shadow):
     # Settings
     warp_mode = cv2.MOTION_AFFINE
     termcrit = (cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, 200,  1e-10)
+    crop_size = (750, 750)
     # Prepare inputs
     target_input = cv2.cvtColor(target, cv2.COLOR_RGB2GRAY)
     shadow_input = cv2.cvtColor(shadow, cv2.COLOR_RGB2GRAY)
-    # Run the ECC algorithm. The results are stored in warp_matrix.
-    warp_matrix = np.eye(3, 3, dtype=np.float32) if warp_mode == cv2.MOTION_HOMOGRAPHY else np.eye(2, 3, dtype=np.float32)
-    (cc, warp_matrix) = cv2.findTransformECC(shadow_input, target_input, warp_matrix, warp_mode, termcrit)
-    # Apply warp_matrix
-    target = cv2.warpAffine(target, warp_matrix, (target.shape[1],target.shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+    # To avoid non-convergence due to the shadow, use corner crops for ECC algorithm
+    corners = [(0, 0), (0, target_input.shape[1] - crop_size[1]), (target_input.shape[0] - crop_size[0], 0), (target_input.shape[0] - crop_size[0], target_input.shape[1] - crop_size[1])]
+    best_cc = 0
+    best_warp_matrix = None
+    for corner in corners:
+        try:
+            target_crop = target_input[corner[0]:corner[0]+crop_size[0], corner[1]:corner[1]+crop_size[1]]
+            shadow_crop = shadow_input[corner[0]:corner[0]+crop_size[0], corner[1]:corner[1]+crop_size[1]]
+            # Run the ECC algorithm. The results are stored in warp_matrix.
+            warp_matrix = np.eye(3, 3, dtype=np.float32) if warp_mode == cv2.MOTION_HOMOGRAPHY else np.eye(2, 3, dtype=np.float32)
+            (cc, warp_matrix) = cv2.findTransformECC(shadow_crop, target_crop, warp_matrix, warp_mode, termcrit)
+            # Save best (highest correlation coeff)
+            if cc > best_cc:
+                best_cc = cc
+                best_warp_matrix = warp_matrix
+        except cv2.error as e:
+            # Handle specific error
+            if 'Iterations do not converge' in str(e):
+                print("ECC algorithm failed to converge... Trying next set up.")
+                continue  # Try the next crop
+    if best_warp_matrix is not None:
+        target = cv2.warpAffine(target, warp_matrix, (target.shape[1],target.shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+    else:
+        print('No suitable transformation found. Returning original target.')
     return target
 
 def border_crop(im, border_size):
@@ -107,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument('--clean_dir', default="clean", type=str, help='Sub-directory with shadow-free images')
     parser.add_argument('--linear_file_ext', type=str, default="tiff", help='Linear image file extension')
     parser.add_argument('--srgb_file_ext', type=str, default="jpg", help='sRGB image file extension')
-    parser.add_argument('--border_size', type=int, default=20, help='Number of pixels to crop off the borders, after affine transform')
+    parser.add_argument('--border_size', type=int, default=100, help='Number of pixels to crop off the borders, after affine transform')
     parser.add_argument('--output_height', type=int, default=480, help='Height of output images')
     parser.add_argument('--output_width', type=int, default=640, help='Width of output images')
     args = parser.parse_args()
@@ -161,8 +181,7 @@ if __name__ == "__main__":
         # Apply transforms
         # 
         # (1) Affine transform 
-        # TODO
-        # im_clean = affine_transform(im_clean, im_noisy)
+        im_clean = affine_transform(im_clean, im_noisy)
         # (2) Crop borders
         im_clean = border_crop(im_clean, border_size=border_size)
         im_noisy = border_crop(im_noisy, border_size=border_size)
@@ -181,3 +200,5 @@ if __name__ == "__main__":
         im_noisy = apply_srgb(im_noisy, max_val=255.)
         cv2.imwrite(srgb_clean_fp, im_clean)
         cv2.imwrite(srgb_noisy_fp, im_noisy)
+
+    print('Done')
