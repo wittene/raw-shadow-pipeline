@@ -19,12 +19,13 @@ def process_raw(fp: str):
 
 
 if __name__ == "__main__":
+    # python raw_to_linear.py --raw_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/raw --tiff_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear
 
     # Handle args
     parser = argparse.ArgumentParser(description='RAW to linear')
     parser.add_argument('--raw_dir', type=str, help='Directory for RAW images (input)')
     parser.add_argument('--tiff_dir', type=str, help='Directory for linear .tiff images (output)')
-    parser.add_argument('--file_ext', type=str, default=".CR2", help='RAW image file extension')
+    parser.add_argument('--file_ext', type=str, default="CR2", help='RAW image file extension')
     args = parser.parse_args()
 
     raw_dir  = args.raw_dir

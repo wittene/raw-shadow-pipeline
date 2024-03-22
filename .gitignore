@@ -1,5 +1,7 @@
 # venv
 raw_env/
+scripts/
+out/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
