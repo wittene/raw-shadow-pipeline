@@ -18,12 +18,12 @@ from tqdm import tqdm
 def load_img(fp: str):
     return cv2.cvtColor(cv2.imread(fp, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB).astype(np.float32)
 
-def estimate_shadow_mask(target, shadow, kernel_size=8):
+def estimate_shadow_mask(target, shadow, kernel_size=4):
     # Estimate binary shadow mask using thresholded difference image
-    diff_image = cv2.absdiff(shadow, target).astype(np.uint8)
-    diff_image = cv2.cvtColor(diff_image, cv2.COLOR_BGR2GRAY)
+    diff_image = target - shadow     # bright - dark
+    diff_image[diff_image < 0] = 0   # shadows create a positive value in difference image
+    diff_image = cv2.cvtColor(diff_image.astype(np.uint8), cv2.COLOR_BGR2GRAY)
     _, binary_mask = cv2.threshold(diff_image, 0, 255, cv2.THRESH_OTSU)
-    # _, binary_mask = cv2.threshold(diff_image, threshold, 255, cv2.THRESH_BINARY)
     # Clean up the binary mask (close -> open)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
     binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
