@@ -93,10 +93,10 @@ def resize(im, height, width):
     '''
     Resize images, cropping excess
     '''
-    # Scale using smaller scaling factor
+    # Scale using larger scaling factor
     scale_h = height / im.shape[0]
     scale_w = width / im.shape[1]
-    scaling_factor = min(scale_h, scale_w)
+    scaling_factor = max(scale_h, scale_w)
     resized_im = cv2.resize(im, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
     # Crop long side if necessary
     if resized_im.shape[0] > height:
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     parser.add_argument('--noisy_dir', type=str, default="shadow", help='Sub-directory with shadow images')
     parser.add_argument('--clean_dir', default="clean", type=str, help='Sub-directory with shadow-free images')
     parser.add_argument('--linear_file_ext', type=str, default="tiff", help='Linear image file extension')
-    parser.add_argument('--srgb_file_ext', type=str, default="jpg", help='sRGB image file extension')
+    parser.add_argument('--srgb_file_ext', type=str, default="png", help='sRGB image file extension')
     parser.add_argument('--border_size', type=int, default=100, help='Number of pixels to crop off the borders, after affine transform')
     parser.add_argument('--output_height', type=int, default=480, help='Height of output images')
     parser.add_argument('--output_width', type=int, default=640, help='Width of output images')
