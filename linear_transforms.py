@@ -44,17 +44,18 @@ def apply_srgb(im, max_val: int = 1):
 
 # TRANSFORMS
 
-def affine_transform(target, shadow):
+def affine_transform(target, shadow, border_size):
     # Settings
     warp_mode = cv2.MOTION_AFFINE
     termcrit = (cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, 200,  1e-10)
     crop_size = (750, 750)
+    min_cc = 0.6
     # Prepare inputs
     target_input = cv2.cvtColor(target, cv2.COLOR_RGB2GRAY)
     shadow_input = cv2.cvtColor(shadow, cv2.COLOR_RGB2GRAY)
     # To avoid non-convergence due to the shadow, use corner crops for ECC algorithm
     corners = [(0, 0), (0, target_input.shape[1] - crop_size[1]), (target_input.shape[0] - crop_size[0], 0), (target_input.shape[0] - crop_size[0], target_input.shape[1] - crop_size[1])]
-    best_cc = 0
+    best_cc = min_cc
     best_warp_matrix = None
     for corner in corners:
         try:
@@ -63,19 +64,23 @@ def affine_transform(target, shadow):
             # Run the ECC algorithm. The results are stored in warp_matrix.
             warp_matrix = np.eye(3, 3, dtype=np.float32) if warp_mode == cv2.MOTION_HOMOGRAPHY else np.eye(2, 3, dtype=np.float32)
             (cc, warp_matrix) = cv2.findTransformECC(shadow_crop, target_crop, warp_matrix, warp_mode, termcrit)
-            # Save best (highest correlation coeff)
-            if cc > best_cc:
+            # Check validity of warp_matrix
+            # (1) Check that translations are not too extreme
+            if np.max(np.abs(warp_matrix[:, 2])) > border_size:
+                print(f"\tTranslation of {np.max(np.abs(warp_matrix[:, 2]))} is too large for border crop of {border_size}... Trying next set up.")
+            # Finally, save best (highest correlation coeff)
+            elif cc > best_cc:
                 best_cc = cc
                 best_warp_matrix = warp_matrix
         except cv2.error as e:
             # Handle specific error
             if 'Iterations do not converge' in str(e):
-                print("ECC algorithm failed to converge... Trying next set up.")
+                print("\tECC algorithm failed to converge... Trying next set up.")
                 continue  # Try the next crop
     if best_warp_matrix is not None:
         target = cv2.warpAffine(target, warp_matrix, (target.shape[1],target.shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
     else:
-        print('No suitable transformation found. Returning original target.')
+        print('\tNo suitable transformation found. Returning original target.')
     return target
 
 def border_crop(im, border_size):
@@ -165,6 +170,7 @@ if __name__ == "__main__":
     
     # Loop through shadow images
     for clean_fn, noisy_fn in tqdm(filenames):
+        print(f"===> {noisy_fn}")
         
         # Load original images
         im_clean = load_img(os.path.join(input_clean_dir, clean_fn))
@@ -181,7 +187,7 @@ if __name__ == "__main__":
         # Apply transforms
         # 
         # (1) Affine transform 
-        im_clean = affine_transform(im_clean, im_noisy)
+        im_clean = affine_transform(im_clean, im_noisy, border_size=border_size)
         # (2) Crop borders
         im_clean = border_crop(im_clean, border_size=border_size)
         im_noisy = border_crop(im_noisy, border_size=border_size)
