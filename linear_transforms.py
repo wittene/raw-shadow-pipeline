@@ -16,7 +16,7 @@ from tqdm import tqdm
 # SAVE/LOAD FUNCTIONS
 
 def load_img(fp: str):
-    return cv2.cvtColor(cv2.imread(fp, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB).astype(np.float32)
+    return cv2.cvtColor(cv2.imread(fp, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB).astype(np.uint8)
 
 def apply_srgb(im, max_val: int = 1):
     '''
@@ -167,6 +167,7 @@ if __name__ == "__main__":
         # Customize this
         clean_files = [f"{x.split('-')[0]}-1.{x.split('.')[-1]}" for x in noisy_files]  # 1-N relation between noisy and clean files
     filenames = zip(clean_files, noisy_files)
+    print(f"Files to process: {len(clean_files)}")
     
     # Loop through shadow images
     for clean_fn, noisy_fn in tqdm(filenames):
@@ -175,6 +176,8 @@ if __name__ == "__main__":
         # Load original images
         im_clean = load_img(os.path.join(input_clean_dir, clean_fn))
         im_noisy = load_img(os.path.join(input_noisy_dir, noisy_fn))
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
 
         # Output file paths -- use only noisy filename so final output is 1-1
         stripped_fn = os.path.splitext(noisy_fn)[0]
@@ -188,22 +191,31 @@ if __name__ == "__main__":
         # 
         # (1) Affine transform 
         im_clean = affine_transform(im_clean, im_noisy, border_size=border_size)
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
         # (2) Crop borders
         im_clean = border_crop(im_clean, border_size=border_size)
         im_noisy = border_crop(im_noisy, border_size=border_size)
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
         # (3) Resize for model input
         im_clean = resize(im_clean, output_height, output_width)
         im_noisy = resize(im_noisy, output_height, output_width)
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
         
         # Save linear versions
-        im_clean = np.clip(cv2.cvtColor(im_clean, cv2.COLOR_RGB2BGR), 0., 255.)
-        im_noisy = np.clip(cv2.cvtColor(im_noisy, cv2.COLOR_RGB2BGR), 0., 255.)
+        im_clean = np.clip(cv2.cvtColor(im_clean, cv2.COLOR_RGB2BGR), 0., 255.).astype(np.uint8)
+        im_noisy = np.clip(cv2.cvtColor(im_noisy, cv2.COLOR_RGB2BGR), 0., 255.).astype(np.uint8)
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
         cv2.imwrite(linear_clean_fp, im_clean)
         cv2.imwrite(linear_noisy_fp, im_noisy)
 
         # Save sRGB versions
-        im_clean = apply_srgb(im_clean, max_val=255.)
-        im_noisy = apply_srgb(im_noisy, max_val=255.)
+        im_clean = apply_srgb(im_clean.astype(np.float32), max_val=255.).astype(np.uint8)
+        im_noisy = apply_srgb(im_noisy.astype(np.float32), max_val=255.).astype(np.uint8)
+        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
         cv2.imwrite(srgb_clean_fp, im_clean)
         cv2.imwrite(srgb_noisy_fp, im_noisy)
 

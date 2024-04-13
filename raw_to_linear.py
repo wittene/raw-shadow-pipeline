@@ -12,8 +12,17 @@ import rawpy
 
 
 
+
+POSTPROCESS_PARAMS = rawpy.Params(
+    gamma=(1,1), 
+    no_auto_bright=False, 
+    auto_bright_thr=0.001, 
+    output_bps=8, 
+    use_camera_wb=True
+)
+
 def process_raw(fp: str):
-    return rawpy.imread(fp).postprocess().astype(np.float32)
+    return rawpy.imread(fp).postprocess(params=POSTPROCESS_PARAMS).astype(np.uint8)
 
 
 
@@ -51,5 +60,6 @@ if __name__ == "__main__":
                 raw_fp = os.path.join(root, file)
                 tiff_fp = os.path.join(output_root, f'{os.path.splitext(file)[0]}.tiff')
                 im = process_raw(raw_fp)
-                im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
+                im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR).astype(np.uint8)
+                assert(np.min(im) >= 0 and np.max(im) <= 255)
                 cv2.imwrite(tiff_fp, im)
