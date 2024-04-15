@@ -139,7 +139,11 @@ if __name__ == "__main__":
 
     input_dir  = args.input_dir
     linear_out_dir = args.linear_out_dir
+    if linear_out_dir.lower() == "NONE":
+        linear_out_dir = None
     srgb_out_dir = args.srgb_out_dir
+    if srgb_out_dir.lower() == "NONE":
+        srgb_out_dir = None
     noisy_dir = args.noisy_dir
     clean_dir = args.clean_dir
     linear_file_ext = args.linear_file_ext
@@ -148,17 +152,21 @@ if __name__ == "__main__":
     output_height = args.output_height
     output_width = args.output_width
 
+    assert(bool(linear_out_dir) or bool(srgb_out_dir))
+
     # Init output dirs
     input_clean_dir = os.path.join(input_dir, clean_dir)
     input_noisy_dir = os.path.join(input_dir, noisy_dir)
-    linear_clean_dir = os.path.join(linear_out_dir, clean_dir)
-    linear_noisy_dir = os.path.join(linear_out_dir, noisy_dir)
-    srgb_clean_dir = os.path.join(srgb_out_dir, clean_dir)
-    srgb_noisy_dir = os.path.join(srgb_out_dir, noisy_dir)
-    os.makedirs(linear_clean_dir, exist_ok=True)
-    os.makedirs(linear_noisy_dir, exist_ok=True)
-    os.makedirs(srgb_clean_dir, exist_ok=True)
-    os.makedirs(srgb_noisy_dir, exist_ok=True)
+    if linear_out_dir:
+        linear_clean_dir = os.path.join(linear_out_dir, clean_dir)
+        linear_noisy_dir = os.path.join(linear_out_dir, noisy_dir)
+        os.makedirs(linear_clean_dir, exist_ok=True)
+        os.makedirs(linear_noisy_dir, exist_ok=True)
+    if srgb_out_dir:
+        srgb_clean_dir = os.path.join(srgb_out_dir, clean_dir)
+        srgb_noisy_dir = os.path.join(srgb_out_dir, noisy_dir)
+        os.makedirs(srgb_clean_dir, exist_ok=True)
+        os.makedirs(srgb_noisy_dir, exist_ok=True)
 
     # Align clean and noisy filenames
     clean_files = sorted(os.listdir(input_clean_dir))
@@ -181,10 +189,12 @@ if __name__ == "__main__":
 
         # Output file paths -- use only noisy filename so final output is 1-1
         stripped_fn = os.path.splitext(noisy_fn)[0]
-        linear_clean_fp = os.path.join(linear_clean_dir, f'{stripped_fn}.{linear_file_ext}')
-        linear_noisy_fp = os.path.join(linear_noisy_dir, f'{stripped_fn}.{linear_file_ext}')
-        srgb_clean_fp   = os.path.join(srgb_clean_dir,   f'{stripped_fn}.{srgb_file_ext}')
-        srgb_noisy_fp   = os.path.join(srgb_noisy_dir,   f'{stripped_fn}.{srgb_file_ext}')
+        if linear_out_dir:
+            linear_clean_fp = os.path.join(linear_clean_dir, f'{stripped_fn}.{linear_file_ext}')
+            linear_noisy_fp = os.path.join(linear_noisy_dir, f'{stripped_fn}.{linear_file_ext}')
+        if srgb_out_dir:
+            srgb_clean_fp   = os.path.join(srgb_clean_dir,   f'{stripped_fn}.{srgb_file_ext}')
+            srgb_noisy_fp   = os.path.join(srgb_noisy_dir,   f'{stripped_fn}.{srgb_file_ext}')
 
         #
         # Apply transforms
@@ -208,15 +218,17 @@ if __name__ == "__main__":
         im_noisy = np.clip(cv2.cvtColor(im_noisy, cv2.COLOR_RGB2BGR), 0., 255.).astype(np.uint8)
         assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
         assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
-        cv2.imwrite(linear_clean_fp, im_clean)
-        cv2.imwrite(linear_noisy_fp, im_noisy)
+        if linear_out_dir:
+            cv2.imwrite(linear_clean_fp, im_clean)
+            cv2.imwrite(linear_noisy_fp, im_noisy)
 
         # Save sRGB versions
         im_clean = apply_srgb(im_clean.astype(np.float32), max_val=255.).astype(np.uint8)
         im_noisy = apply_srgb(im_noisy.astype(np.float32), max_val=255.).astype(np.uint8)
         assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
         assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
-        cv2.imwrite(srgb_clean_fp, im_clean)
-        cv2.imwrite(srgb_noisy_fp, im_noisy)
+        if srgb_out_dir:
+            cv2.imwrite(srgb_clean_fp, im_clean)
+            cv2.imwrite(srgb_noisy_fp, im_noisy)
 
     print('Done')
