@@ -13,40 +13,32 @@ source raw_env/bin/activate
 
 # Copy training files
 python copy_files.py \
-    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear_split/train \
+    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/train \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-train.txt
 
 python copy_files.py \
-    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
-    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_split/train \
+    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
+    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/train \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-train.txt
 
 python copy_files.py \
-    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg \
-    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg_split/train \
+    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
+    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/train \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-train.txt
 
 # Copy test files
 python copy_files.py \
-    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear_split/test \
+    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/test \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-test.txt
 
 python copy_files.py \
-    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
-    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_split/test \
+    --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
+    --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/test \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-test.txt
 
 python copy_files.py \
     --in_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
     --out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/test \
     --filenames_txt /home/witten.e/Shadow_Removal/raw-shadow-pipeline/files/ISTD_RawSR-test.txt
-
-# Re-organize
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear_split/all
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_split/all
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg_split/all
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear_split /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_split /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb
-mv /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg_split /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg

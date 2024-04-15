@@ -11,5 +11,5 @@
 echo "Setting up..."
 source raw_env/bin/activate
 python gen_masks.py \
-    --dataset_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
+    --dataset_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
     --mask_file_ext png

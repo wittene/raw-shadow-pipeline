@@ -13,65 +13,65 @@ source raw_env/bin/activate
 
 python linear_transforms.py \
     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-1 \
-    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
+    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
     --srgb_file_ext png \
     &
 
 python linear_transforms.py \
     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-2 \
-    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
+    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
     --srgb_file_ext png \
     &
 
-# python linear_transforms.py \
-#     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-red \
-#     --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-#     --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
-#     --srgb_file_ext png \
-#     &
+python linear_transforms.py \
+    --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-red \
+    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
+    --srgb_file_ext png \
+    &
 
 python linear_transforms.py \
     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-3 \
-    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb \
+    --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear/all \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb/all \
     --srgb_file_ext png \
+    &
+ 
+#  wait
+#  echo 'Done!'
+
+
+
+
+python linear_transforms.py \
+    --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-1 \
+    --linear_out_dir NONE \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
+    --srgb_file_ext jpg \
+    &
+
+python linear_transforms.py \
+    --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-2 \
+    --linear_out_dir NONE \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
+    --srgb_file_ext jpg \
+    &
+
+python linear_transforms.py \
+    --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-red \
+    --linear_out_dir NONE \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
+    --srgb_file_ext jpg \
+    &
+
+python linear_transforms.py \
+    --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-3 \
+    --linear_out_dir NONE \
+    --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg/all \
+    --srgb_file_ext jpg \
     &
  
  wait
  echo 'Done!'
-
-
-
-
-# python linear_transforms.py \
-#     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-1 \
-#     --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-#     --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg \
-#     --srgb_file_ext jpg \
-#     &
-
-# python linear_transforms.py \
-#     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-2 \
-#     --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-#     --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg \
-#     --srgb_file_ext jpg \
-#     &
-
-# python linear_transforms.py \
-#     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-red \
-#     --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-#     --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg \
-#     --srgb_file_ext jpg \
-#     &
-
-# python linear_transforms.py \
-#     --input_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset/linear-3 \
-#     --linear_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/linear \
-#     --srgb_out_dir /work/SuperResolutionData/ShadowRemovalData/RawSR_Dataset_final/srgb_jpg \
-#     --srgb_file_ext jpg \
-#     &
- 
-#  wait
-#  echo 'Done!'
