@@ -16,7 +16,7 @@ from tqdm import tqdm
 # SAVE/LOAD FUNCTIONS
 
 def load_img(fp: str):
-    return cv2.cvtColor(cv2.imread(fp, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB).astype(np.uint8)
+    return cv2.cvtColor(cv2.imread(fp, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB)
 
 def apply_srgb(im, max_val: int = 1):
     '''
@@ -139,10 +139,10 @@ if __name__ == "__main__":
 
     input_dir  = args.input_dir
     linear_out_dir = args.linear_out_dir
-    if linear_out_dir.lower() == "NONE":
+    if linear_out_dir.upper() == "NONE":
         linear_out_dir = None
     srgb_out_dir = args.srgb_out_dir
-    if srgb_out_dir.lower() == "NONE":
+    if srgb_out_dir.upper() == "NONE":
         srgb_out_dir = None
     noisy_dir = args.noisy_dir
     clean_dir = args.clean_dir
@@ -184,8 +184,12 @@ if __name__ == "__main__":
         # Load original images
         im_clean = load_img(os.path.join(input_clean_dir, clean_fn))
         im_noisy = load_img(os.path.join(input_noisy_dir, noisy_fn))
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
-        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
+
+        dtype = im_clean.dtype
+        max_val = np.iinfo(dtype).max
+
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
+        assert(np.min(im_noisy) >= 0 and np.max(im_noisy) <= max_val)
 
         # Output file paths -- use only noisy filename so final output is 1-1
         stripped_fn = os.path.splitext(noisy_fn)[0]
@@ -201,32 +205,32 @@ if __name__ == "__main__":
         # 
         # (1) Affine transform 
         im_clean = affine_transform(im_clean, im_noisy, border_size=border_size)
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
         # (2) Crop borders
         im_clean = border_crop(im_clean, border_size=border_size)
         im_noisy = border_crop(im_noisy, border_size=border_size)
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
-        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
+        assert(np.min(im_noisy) >= 0 and np.max(im_noisy) <= max_val)
         # (3) Resize for model input
         im_clean = resize(im_clean, output_height, output_width)
         im_noisy = resize(im_noisy, output_height, output_width)
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
-        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
+        assert(np.min(im_noisy) >= 0 and np.max(im_noisy) <= max_val)
         
         # Save linear versions
-        im_clean = np.clip(cv2.cvtColor(im_clean, cv2.COLOR_RGB2BGR), 0., 255.).astype(np.uint8)
-        im_noisy = np.clip(cv2.cvtColor(im_noisy, cv2.COLOR_RGB2BGR), 0., 255.).astype(np.uint8)
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
-        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
+        im_clean = np.clip(cv2.cvtColor(im_clean, cv2.COLOR_RGB2BGR), 0., max_val).astype(dtype)
+        im_noisy = np.clip(cv2.cvtColor(im_noisy, cv2.COLOR_RGB2BGR), 0., max_val).astype(dtype)
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
+        assert(np.min(im_noisy) >= 0 and np.max(im_noisy) <= max_val)
         if linear_out_dir:
             cv2.imwrite(linear_clean_fp, im_clean)
             cv2.imwrite(linear_noisy_fp, im_noisy)
 
         # Save sRGB versions
-        im_clean = apply_srgb(im_clean.astype(np.float32), max_val=255.).astype(np.uint8)
-        im_noisy = apply_srgb(im_noisy.astype(np.float32), max_val=255.).astype(np.uint8)
-        assert(np.min(im_clean)>= 0 and np.max(im_clean) <= 255)
-        assert(np.min(im_noisy)>= 0 and np.max(im_noisy) <= 255)
+        im_clean = apply_srgb(im_clean.astype(np.float32), max_val=max_val).astype(dtype)
+        im_noisy = apply_srgb(im_noisy.astype(np.float32), max_val=max_val).astype(dtype)
+        assert(np.min(im_clean) >= 0 and np.max(im_clean) <= max_val)
+        assert(np.min(im_noisy) >= 0 and np.max(im_noisy) <= max_val)
         if srgb_out_dir:
             cv2.imwrite(srgb_clean_fp, im_clean)
             cv2.imwrite(srgb_noisy_fp, im_noisy)
